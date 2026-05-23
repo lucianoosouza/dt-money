@@ -1,0 +1,32 @@
+import { AppError } from '@/shared/helpers/appError'
+import axios from 'axios'
+import { Platform } from 'react-native'
+
+const baseURL = Platform.select({
+    ios: 'http://localhost:3001',
+    android: 'http://10.0.2.2:3001',
+})
+
+export const dtMoneyApi = axios.create({
+    baseURL,
+})
+
+dtMoneyApi.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        if (error.response && error.response.data) {
+            const message =
+                typeof error.response.data === 'string'
+                    ? error.response.data
+                    : error.response.data.message
+
+            return Promise.reject(
+                new AppError(message)
+            )
+        }
+
+        return Promise.reject(
+            new AppError('Falha na requisição')
+        )
+    }
+)
