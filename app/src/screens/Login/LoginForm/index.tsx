@@ -2,14 +2,13 @@ import { AppButton } from '@/components/AppButton'
 import { AppInput } from '@/components/AppInput'
 import { useAuthContext } from '@/context/auth.context'
 import { PublicStackParamsList } from '@/routes/PublicRoutes'
+import { useErrorHandler } from '@/shared/hooks/useErrorHandler'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { useNavigation } from '@react-navigation/native'
 import { StackNavigationProp } from '@react-navigation/stack'
-import { AxiosError } from 'axios'
 import { useForm } from 'react-hook-form'
-import { Text, View } from 'react-native'
-import { AppError } from '@/shared/helpers/appError'
-
+import { Text, View, ActivityIndicator } from 'react-native'
+import { colors } from '@/shared/colors'
 import { schema } from './schema'
 
 export interface FormLoginParams {
@@ -21,6 +20,7 @@ export const LoginForm = () => {
     const navigation = useNavigation<StackNavigationProp<PublicStackParamsList>>()
 
     const { handleAuthenticate } = useAuthContext()
+    const { errorHandler } = useErrorHandler()
 
     const {
         control,
@@ -38,10 +38,7 @@ export const LoginForm = () => {
         try {
             await handleAuthenticate(userData)
         } catch (error) {
-            if (error instanceof AppError) {
-                console.log(error.message)
-                console.log(error instanceof AppError)
-            }
+            errorHandler(error, 'Falha ao logar')
         }
     }
 
@@ -64,16 +61,22 @@ export const LoginForm = () => {
                 secureTextEntry
             />
 
-            <View className="flex-1 justify-between mt-8 mb-8 min-h-[250px]">
+            <View
+                className="flex-1 justify-between mt-8 mb-8 min-h-[250px]">
                 <AppButton
                     iconName="arrow-forward"
                     onPress={handleSubmit(onSubmit)}
                 >
-                    Login
+                    {isSubmitting ? (
+                        <ActivityIndicator color={colors.white} />
+                    ) : (
+                        'Login'
+                    )}
                 </AppButton>
 
                 <View>
-                    <Text className="mb-6 text-gray-300 text-base">
+                    <Text
+                        className="mb-6 text-gray-300 text-base">
                         Ainda não possui uma conta?
                     </Text>
 
