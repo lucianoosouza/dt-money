@@ -89,10 +89,10 @@ export const RegisterForm = () => {
                     onPress={handleSubmit(onSubmit)}
                 >
                     {isSubmitting ? (
-                        <ActivityIndicator color={colors.white} />
-                    ) : (
-                        'Cadastrar'
-                    )}
+                        <ActivityIndicator color = {colors.white}/>
+                    ): (
+                    'Cadastrar'
+  )}
                 </AppButton>
 
                 <View>
