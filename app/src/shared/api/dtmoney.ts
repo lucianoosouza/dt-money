@@ -1,4 +1,5 @@
 import { AppError } from '@/shared/helpers/appError'
+import { addTokenToRequest } from '@/shared/helpers/axios.helper'
 import axios from 'axios'
 import { Platform } from 'react-native'
 
@@ -11,17 +12,14 @@ export const dtMoneyApi = axios.create({
     baseURL,
 })
 
+addTokenToRequest(dtMoneyApi)
+
 dtMoneyApi.interceptors.response.use(
     (response) => response,
     (error) => {
         if (error.response && error.response.data) {
-            const message =
-                typeof error.response.data === 'string'
-                    ? error.response.data
-                    : error.response.data.message
-
             return Promise.reject(
-                new AppError(message)
+                new AppError(error.response.data.message)
             )
         }
 
