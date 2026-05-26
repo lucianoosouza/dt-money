@@ -24,7 +24,6 @@ export const TransactionContextProvider: FC<PropsWithChildren> = ({
     const fetchCategories = async () => {
         const categoriesResponse =
             await TransactionService.getTransactionCategories()
-        console.log(categories)
         setCategories(categoriesResponse)
     }
 
