@@ -1,7 +1,7 @@
 import { ErrorMessage } from '@/components/ErrorMessage'
 import { colors } from '@/shared/colors'
 import { MaterialIcons } from '@expo/vector-icons'
-import clsx from'clsx'
+import clsx from 'clsx'
 import { useRef, useState } from 'react'
 import { Control, Controller, FieldValues, Path } from 'react-hook-form'
 import {
@@ -47,7 +47,7 @@ export const AppInput = <T extends FieldValues>({
                 fieldState: { error },
             }) => {
                 return (
-                    <View className="w-full mt-4">
+                    <View className="mt-4 w-full">
                         {label && (
                             <Text
                                 className={clsx(
@@ -59,7 +59,7 @@ export const AppInput = <T extends FieldValues>({
                             </Text>
                         )}
 
-                        <TouchableOpacity className="flex-row items-center justify-between border-b border-gray-600 px-3 py-2 h-16">
+                        <TouchableOpacity className="h-16 w-full flex-row items-center justify-between border-b border-gray-600 px-3 py-2">
                             {leftIconName && (
                                 <MaterialIcons
                                     name={leftIconName}
@@ -78,7 +78,7 @@ export const AppInput = <T extends FieldValues>({
                                 onEndEditing={checkFocus}
                                 placeholderTextColor={colors.gray[700]}
                                 secureTextEntry={showText}
-                                className="flex-1 text-base text-gray-500"
+                                className="flex-1 text-base text-gray-400"
                             />
 
                             {secureTextEntry && (

@@ -1,4 +1,5 @@
-import "react-native-gesture-handler";
+import 'react-native-gesture-handler';
+import React from "react";
 import "./src/styles/global.css";
 import { AuthContextProvider } from "./src/context/auth.context";
 import NavigationRoutes from "./src/routes";

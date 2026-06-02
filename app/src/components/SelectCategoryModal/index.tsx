@@ -1,6 +1,7 @@
 import { useTransactionContext } from '@/context/transaction.context'
+import { useErrorHandler } from '@/shared/hooks/useErrorHandler'
 import Checkbox from 'expo-checkbox'
-import { FC, useMemo, useState } from 'react'
+import { FC, useEffect, useMemo, useState } from 'react'
 import {
     FlatList,
     Modal,
@@ -19,7 +20,8 @@ export const SelectCategoryModal: FC<SelectCategoryModalProps> = ({
     selectedCategory,
     onSelect,
 }) => {
-    const { categories } = useTransactionContext()
+    const { categories, fetchCategories } = useTransactionContext()
+    const { errorHandler } = useErrorHandler()
 
     const [showModal, setShowModal] = useState(false)
 
@@ -27,6 +29,22 @@ export const SelectCategoryModal: FC<SelectCategoryModalProps> = ({
         () => categories.find((category) => category.id === selectedCategory),
         [categories, selectedCategory]
     )
+
+    useEffect(() => {
+        if (categories.length > 0) {
+            return
+        }
+
+        const loadCategories = async () => {
+            try {
+                await fetchCategories()
+            } catch (error) {
+                errorHandler(error, 'Falha ao buscar as categorias')
+            }
+        }
+
+        loadCategories()
+    }, [categories.length, fetchCategories, errorHandler])
 
     const handleModal = () => {
         setShowModal((prevState) => !prevState)
