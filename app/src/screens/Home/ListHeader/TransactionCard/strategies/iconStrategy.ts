@@ -8,7 +8,7 @@ interface IconData {
     color: string
 }
 
-export const icons: Record<TransactionCardType, IconData> = {
+export const ICONS: Record<TransactionCardType, IconData> = {
     [TransactionTypes.revenue]: {
         name: 'arrow-circle-up',
         color: colors['accent-brand-light'],

@@ -1,113 +1,111 @@
 import { AppButton } from '@/components/AppButton'
 import { AppInput } from '@/components/AppInput'
-import { useAuthContext } from '@/context/auth.context'
 import { PublicStackParamsList } from '@/routes/PublicRoutes'
-import { yupResolver } from '@hookform/resolvers/yup'
-import { useNavigation } from '@react-navigation/native'
-import { StackNavigationProp } from '@react-navigation/stack'
+import { NavigationProp, useNavigation } from '@react-navigation/native'
 import { useForm } from 'react-hook-form'
-import { Text, View, ActivityIndicator } from 'react-native'
-import { useErrorHandler } from '@/shared/hooks/useErrorHandler'
-import { colors } from '@/shared/colors'
+import { ActivityIndicator, Text, View } from 'react-native'
+import { yupResolver } from '@hookform/resolvers/yup'
 import { schema } from './schema'
+import { useAuthContext } from '@/context/auth.context'
+import { useErrorHandler } from '@/shared/hooks/useErrorHandler'
+import { AppError } from '@/shared/helpers/AppError'
+import { colors } from '@/shared/colors'
 
-export type FormRegisterParams = {
-    name: string
-    email: string
-    password: string
-    confirmPassword: string
+export interface FormRegisterParams {
+  email: string
+  name: string
+  password: string
+  confirmPassword: string
 }
 
 export const RegisterForm = () => {
-    const navigation = useNavigation<StackNavigationProp<PublicStackParamsList>>()
+  const {
+    control,
+    handleSubmit,
+    formState: { isSubmitting },
+  } = useForm<FormRegisterParams>({
+    defaultValues: {
+      email: '',
+      name: '',
+      password: '',
+      confirmPassword: '',
+    },
+    resolver: yupResolver(schema),
+  })
 
-    const { handleRegister } = useAuthContext()
-    const { errorHandler } = useErrorHandler()
+  const { handleRegister } = useAuthContext()
+  const { handleError } = useErrorHandler()
 
-    const {
-        control,
-        handleSubmit,
-        formState: { isSubmitting },
-    } = useForm<FormRegisterParams>({
-        defaultValues: {
-            name: '',
-            email: '',
-            password: '',
-            confirmPassword: '',
-        },
-        resolver: yupResolver(schema),
-    })
+  const navigation = useNavigation<NavigationProp<PublicStackParamsList>>()
 
-    const onSubmit = async (userData: FormRegisterParams) => {
-        try {
-            await handleRegister(userData)
-        } catch (error) {
-            errorHandler(error, 'Falha ao cadastrar usuário')
-        }
+  const onSubmit = async (userData: FormRegisterParams) => {
+    try {
+      await handleRegister(userData)
+    } catch (error) {
+      if (error instanceof AppError) {
+        handleError(error, 'Falha ao cadastrar usuário')
+      }
     }
+  }
 
+  return (
+    <>
+      <AppInput
+        control={control}
+        name="name"
+        placeholder="Seu nome"
+        lable="NOME"
+        leftIconName="person"
+      />
 
-    return (
-        <>
-            <AppInput
-                control={control}
-                name="name"
-                leftIconName="person"
-                label="NOME"
-                placeholder="Seu nome"
-            />
+      <AppInput
+        control={control}
+        name="email"
+        lable="EMAIL"
+        leftIconName="mail-outline"
+        placeholder="mail@example.br"
+      />
 
-            <AppInput
-                control={control}
-                name="email"
-                leftIconName="mail-outline"
-                label="E-MAIL"
-                placeholder="mail@example.br"
-            />
+      <AppInput
+        control={control}
+        name="password"
+        lable="SENHA"
+        placeholder="Sua senha"
+        leftIconName="lock-outline"
+        secureTextEntry
+      />
 
-            <AppInput
-                control={control}
-                name="password"
-                leftIconName="lock-outline"
-                label="SENHA"
-                placeholder="Sua senha"
-                secureTextEntry
-            />
+      <AppInput
+        control={control}
+        name="confirmPassword"
+        lable="SENHA"
+        leftIconName="lock-outline"
+        placeholder="Confirme sua senha"
+        secureTextEntry
+      />
 
-            <AppInput
-                control={control}
-                name="confirmPassword"
-                leftIconName="lock-outline"
-                label="SENHA"
-                placeholder="Confirme sua senha"
-                secureTextEntry
-            />
+      <View className="flex-1 justify-between mt-8 mb-6 min-h-[250px]">
+        <AppButton onPress={handleSubmit(onSubmit)} iconName="arrow-forward">
+          {!isSubmitting ? (
+            <ActivityIndicator color={colors.white} />
+          ) : (
+            'Cadastrar'
+          )}
+        </AppButton>
 
-            <View className="flex-1 justify-between mt-8 mb-8 min-h-[250px]">
-                <AppButton
-                    iconName="arrow-forward"
-                    onPress={handleSubmit(onSubmit)}
-                >
-                    {isSubmitting ? (
-                        <ActivityIndicator color = {colors.white}/>
-                    ): (
-                    'Cadastrar'
-  )}
-                </AppButton>
-
-                <View>
-                    <Text className="mb-6 text-gray-300 text-base">
-                        Já possui uma conta?
-                    </Text>
-
-                    <AppButton
-                        mode="outline"
-                        onPress={() => navigation.navigate('Login')}
-                    >
-                        Acessar
-                    </AppButton>
-                </View>
-            </View>
-        </>
-    )
+        <View>
+          <Text className="mb-6 text-gray-300 text-base">
+            Já possui uma conta?
+          </Text>
+          <AppButton
+            onPress={() => navigation.navigate('Login')}
+            iconName="arrow-forward"
+            mode="outline"
+          >
+            Acessar
+          </AppButton>
+        </View>
+      </View>
+    </>
+  )
 }

@@ -4,7 +4,7 @@
     "slug": "dt-money-app",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/logo.png",
+    "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {
@@ -30,7 +30,8 @@
     "plugins": [
       "expo-asset",
       "react-native-edge-to-edge",
-      "expo-font"
+      "expo-font",
+      "@react-native-community/datetimepicker"
     ]
   }
 }

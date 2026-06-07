@@ -1,4 +1,4 @@
-export interface TotalTransaction {
+export interface TotalTransactions {
     revenue: number
     expense: number
     total: number

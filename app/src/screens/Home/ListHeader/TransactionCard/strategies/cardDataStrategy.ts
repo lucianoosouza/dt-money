@@ -6,7 +6,7 @@ interface CardData {
     bgColor: string
 }
 
-export const cardData: Record<TransactionCardType, CardData> = {
+export const CARD_DATA: Record<TransactionCardType, CardData> = {
     [TransactionTypes.expense]: {
         label: 'Saída',
         bgColor: 'background-tertiary',

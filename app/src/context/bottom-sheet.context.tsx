@@ -1,93 +1,92 @@
-import React, {
-    FC,
-    PropsWithChildren,
-    createContext,
-    useCallback,
-    useContext,
-    useEffect,
-    useMemo,
-    useRef,
-    useState,
+import {
+  createContext,
+  FC,
+  PropsWithChildren,
+  useCallback,
+  useContext,
+  useRef,
+  useState,
 } from 'react'
-
-import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet'
-
+import BottomSheet, { BottomSheetScrollView } from '@gorhom/bottom-sheet'
+import { TouchableWithoutFeedback, View } from 'react-native'
 import { colors } from '@/shared/colors'
 
 interface BottomSheetContextType {
-    openBottomSheet: (content: React.ReactNode, index?: number) => void
-    closeBottomSheet: () => void
+  openBottomSheet: (content: React.ReactNode, index: number) => void
+  closeBottomSheet: () => void
 }
 
-export const BottomSheetContext = createContext({} as BottomSheetContextType)
+export const BottomSheetContext = createContext<BottomSheetContextType>(
+  {} as BottomSheetContextType,
+)
 
 export const BottomSheetProvider: FC<PropsWithChildren> = ({ children }) => {
-    const bottomSheetRef = useRef<BottomSheet>(null)
+  const [content, setContent] = useState<React.ReactNode | null>(null)
+  const [index, setIndex] = useState(-1)
+  const [isOpen, setIsOpen] = useState(false)
+  const bottomSheetRef = useRef<BottomSheet>(null)
+  const snapPoints = ['70%', '90%']
 
-    const [content, setContent] = useState<React.ReactNode | null>(null)
-    const [sheetIndex, setSheetIndex] = useState(0)
+  const openBottomSheet = useCallback(
+    (newContent: React.ReactNode, index: number) => {
+      setIndex(index)
+      setIsOpen(true)
+      setContent(newContent)
+      requestAnimationFrame(() => {
+        bottomSheetRef.current?.snapToIndex(index)
+      })
+    },
+    [],
+  )
 
-    const snapPoints = useMemo(() => ['55%'], [])
+  const closeBottomSheet = useCallback(() => {
+    setIsOpen(false)
+    setContent(null)
+    setIndex(-1)
+    bottomSheetRef.current?.close()
+  }, [])
 
-    const openBottomSheet = useCallback(
-        (newContent: React.ReactNode, index: number = 0) => {
-            setSheetIndex(index)
-            setContent(newContent)
-        },
-        []
-    )
+  const handleSheetChanges = useCallback((index: number) => {
+    if (index === -1) {
+      setIsOpen(false)
+    }
+  }, [])
 
-    const closeBottomSheet = useCallback(() => {
-        bottomSheetRef.current?.close()
-    }, [])
+  return (
+    <BottomSheetContext.Provider
+      value={{
+        openBottomSheet,
+        closeBottomSheet,
+      }}
+    >
+      {children}
 
-    useEffect(() => {
-        if (!content) {
-            return
-        }
+      {isOpen && (
+        <TouchableWithoutFeedback onPress={closeBottomSheet}>
+          <View className="absolute inset-0 bg-black/70 z-1" />
+        </TouchableWithoutFeedback>
+      )}
 
-        requestAnimationFrame(() => {
-            bottomSheetRef.current?.snapToIndex(sheetIndex)
-        })
-    }, [content, sheetIndex])
-
-    return (
-        <BottomSheetContext.Provider
-            value={{
-                openBottomSheet,
-                closeBottomSheet,
-            }}
-        >
-            {children}
-
-            {content && (
-                <BottomSheet
-                    ref={bottomSheetRef}
-                    index={-1}
-                    snapPoints={snapPoints}
-                    enablePanDownToClose
-                    onClose={() => setContent(null)}
-                    backgroundStyle={{
-                        backgroundColor: colors.gray[800],
-                    }}
-                    handleIndicatorStyle={{
-                        backgroundColor: colors.gray[700],
-                    }}
-                >
-                    <BottomSheetView
-                        style={{
-                            flex: 1,
-                            backgroundColor: colors.gray[800],
-                        }}
-                    >
-                        {content}
-                    </BottomSheetView>
-                </BottomSheet>
-            )}
-        </BottomSheetContext.Provider>
-    )
+      <BottomSheet
+        ref={bottomSheetRef}
+        snapPoints={snapPoints}
+        style={{ zIndex: 2 }}
+        index={index}
+        enablePanDownToClose
+        onChange={handleSheetChanges}
+        backgroundStyle={{
+          backgroundColor: colors['background-secondary'],
+          borderTopLeftRadius: 32,
+          borderTopRightRadius: 32,
+          elevation: 9,
+        }}
+      >
+        <BottomSheetScrollView>{content}</BottomSheetScrollView>
+      </BottomSheet>
+    </BottomSheetContext.Provider>
+  )
 }
 
 export const useBottomSheetContext = () => {
-    return useContext(BottomSheetContext)
+  return useContext(BottomSheetContext)
 }
